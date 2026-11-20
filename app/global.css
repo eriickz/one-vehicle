@@ -23,6 +23,11 @@
       --on-accent: 23 18 8;
       --ring: 115 115 115;
       --surface: 21 28 35;
+      --backdrop: rgba(13, 15, 20, .8);
+      --category-1: 242 111 111;
+      --category-2: 91 157 245;
+      --category-3: 181 141 242;
+      --category-4: 76 194 137;
       --onboarding-gradient: linear-gradient(180deg, #0D101500 0%, #0D1015E6 75%, #0D1015 100%);
     }
   }
@@ -58,5 +63,10 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-on-accent: rgb(var(--on-accent));
   --color-surface: rgb(var(--surface));
+  --color-backdrop: var(--backdrop);
+  --color-category-1: rgb(var(--category-1));
+  --color-category-2: rgb(var(--category-2));
+  --color-category-3: rgb(var(--category-3));
+  --color-category-4: rgb(var(--category-4));
   --background-image-onboarding-gradient: var(--onboarding-gradient);
 }

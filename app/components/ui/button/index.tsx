@@ -29,11 +29,10 @@ const buttonStyle = tva({
       destructive:
         "bg-destructive data-[hover=true]:bg-destructive/90 data-[active=true]:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
       outline:
-        "border border-border bg-background shadow-xs data-[hover=true]:bg-accent data-[active=true]:bg-accent dark:bg-input/[0.045] dark:border-border/90 dark:data-[hover=true]:bg-input/[0.075] dark:data-[active=true]:bg-input/[0.075]",
+        "border border-accent bg-accent-foreground rounded-full data-[hover=true]:bg-accent data-[active=true]:bg-accent",
       secondary:
-        "bg-secondary text-secondary-foreground data-[hover=true]:bg-secondary/80 data-[active=true]:bg-secondary/80",
-      ghost:
-        "data-[hover=true]:bg-accent data-[active=true]:bg-accent dark:data-[hover=true]:bg-accent/50 dark:data-[active=true]:bg-accent/50",
+        "bg-card border border-border data-[hover=true]:bg-card/80 data-[active=true]:bg-card/80",
+      ghost: "data-[hover=true]:bg-card/80 data-[active=true]:bg-card/80",
       link: "text-primary underline-offset-4 data-[hover=true]:underline data-[active=true]:underline",
       chip: "bg-card border border-border",
     },
@@ -52,11 +51,11 @@ const buttonTextStyle = tva({
       default: "text-on-accent font-inter-semibold",
       destructive: "text-white",
       outline:
-        "text-foreground data-[hover=true]:text-accent-foreground data-[active=true]:text-accent-foreground",
-      secondary: "text-secondary-foreground",
+        "text-accent font-inter-semibold text-xs data-[hover=true]:text-accent-foreground data-[active=true]:text-accent-foreground",
+      secondary: "text-primary font-inter-semibold text-sm",
       ghost: "text-foreground ",
       link: "text-primary data-[hover=true]:underline data-[active=true]:underline",
-      chip: "text-secondary font-inter-medium data-[hover=true]:text-accent data-[active=true]:text-accent",
+      chip: "text-secondary font-inter-medium text-xs data-[hover=true]:text-accent data-[active=true]:text-accent",
     },
     size: {
       default: "text-sm",
