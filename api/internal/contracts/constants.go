@@ -1,0 +1,11 @@
+package contracts
+
+const (
+	DEFAULT_PAGE_SIZE = 10
+
+	CURRENCY_USD = "USD"
+	CURRENCY_EUR = "EUR"
+	CURRENCY_GBP = "GBP"
+	CURRENCY_CAD = "CAD"
+	CURRENCY_DOP = "DOP"
+)

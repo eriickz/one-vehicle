@@ -37,11 +37,17 @@
       [
         "expo-status-bar",
         {
-          "hidden": false,
-          "style": "dark"
+          "hidden": true
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-navigation-bar",
+        {
+          "hidden": true
+        }
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true,

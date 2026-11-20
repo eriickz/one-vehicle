@@ -18,6 +18,8 @@ import {
 import { SplashScreen } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { NavigationBar } from "expo-navigation-bar";
+import { Platform } from "react-native";
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -33,7 +35,11 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded || error) {
       SplashScreen.hideAsync();
-      StatusBar.setStyle("dark");
+      StatusBar.setHidden(true);
+
+      if (Platform.OS === "android") {
+        NavigationBar.setHidden(true);
+      }
     }
   }, [loaded, error]);
 
