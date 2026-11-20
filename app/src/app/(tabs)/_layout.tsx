@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { TabHeader } from "@/components/ui/tab-header";
 import { Tabs, useRouter, useSegments } from "expo-router";
 import { PlatformPressable } from "expo-router/build/react-navigation/index.js";
 import {
@@ -16,11 +15,12 @@ export default function TabsLayout() {
   const router = useRouter();
   const segments = useSegments();
 
-  const hideTab = [...segments].includes("new-log");
+  const hideTab = (["new-log", "log-detail", "add-vehicle"] as const).some(
+    (route) => [...segments].includes(route),
+  );
 
   return (
     <Tabs
-      tabBar={hideTab ? () => null : undefined}
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
@@ -36,6 +36,8 @@ export default function TabsLayout() {
           fontSize: 10,
         },
         tabBarStyle: {
+          position: "absolute",
+          display: hideTab ? "none" : "flex",
           width: "90%",
           height: 65,
           padding: 6,
@@ -43,8 +45,8 @@ export default function TabsLayout() {
           borderRadius: 28,
           borderWidth: 1,
           borderColor: "rgba(255, 255, 255, .07)",
-          marginBottom: 26,
-          marginHorizontal: "auto",
+          bottom: 26,
+          marginLeft: "5%",
           paddingBottom: 0,
         },
         tabBarItemStyle: {

@@ -87,9 +87,11 @@ func (s *MaintenanceService) CreateLog(c *echo.Context, req maintenancecontracts
 		return nil, fmt.Errorf("mileage (%d) cannot be lower than the vehicle initial mileage (%d)", req.Mileage, vehicle.InitialMileage)
 	}
 
-	_, err = s.catalogRepo.GetCategory(ctx, req.CategoryID)
-	if err != nil {
-		return nil, fmt.Errorf("category with ID '%d' not found", req.CategoryID)
+	if req.CategoryID != nil {
+		_, err = s.catalogRepo.GetCategory(ctx, *req.CategoryID)
+		if err != nil {
+			return nil, fmt.Errorf("category with ID '%d' not found", *req.CategoryID)
+		}
 	}
 
 	log := &maintenancecontracts.MaintenanceLog{
@@ -137,9 +139,11 @@ func (s *MaintenanceService) UpdateLog(c *echo.Context, id string, req maintenan
 		return nil, fmt.Errorf("mileage (%d) cannot be lower than the vehicle initial mileage (%d)", req.Mileage, vehicle.InitialMileage)
 	}
 
-	_, err = s.catalogRepo.GetCategory(ctx, req.CategoryID)
-	if err != nil {
-		return nil, fmt.Errorf("category with ID '%d' not found", req.CategoryID)
+	if req.CategoryID != nil {
+		_, err = s.catalogRepo.GetCategory(ctx, *req.CategoryID)
+		if err != nil {
+			return nil, fmt.Errorf("category with ID '%d' not found", *req.CategoryID)
+		}
 	}
 
 	existingLog.VehicleID = req.VehicleID

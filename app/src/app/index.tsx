@@ -4,10 +4,20 @@ import { Image, ImageBackground } from "expo-image";
 import { Text, View } from "react-native";
 import { CarFront, CircleDollarSign, Tags } from "lucide-react-native";
 import { Button, ButtonText } from "@/components/ui/button";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
+import { useFetchVehicles } from "@/src/modules/garage/hooks/useFetchVehicles";
 
 export default function Index() {
   const router = useRouter();
+  const { vehicles, loading } = useFetchVehicles();
+
+  if (loading) {
+    return null;
+  }
+
+  if (vehicles.length > 0) {
+    return <Redirect href="/(tabs)" />;
+  }
 
   return (
     <View className="pb-7 h-full items-center">
@@ -78,7 +88,7 @@ export default function Index() {
         </HStack>
         <Button
           className="mt-2.5"
-          onPress={() => router.navigate("/(tabs)/add-vehicle")}
+          onPress={() => router.push("/(tabs)/garage/add-vehicle")}
         >
           <ButtonText className="capitalize">Add your first vehicle</ButtonText>
         </Button>

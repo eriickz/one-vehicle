@@ -16,9 +16,11 @@ type VehicleRequest struct {
 }
 
 type VehicleMetricsResponse struct {
-	VehicleID       string          `json:"vehicleId"`
-	CurrentMileage  int             `json:"currentMileage"`
-	TotalExpenses   decimal.Decimal `json:"totalExpenses"`
-	TotalLogsCount  int             `json:"totalLogsCount"`
-	LastServiceDate *time.Time      `json:"lastServiceDate"`
+	VehicleID        string          `json:"vehicleId"`
+	CurrentMileage   int             `json:"currentMileage"`
+	TotalExpenses    decimal.Decimal `json:"totalExpenses"`
+	TotalLogsCount   int             `json:"totalLogsCount"`
+	LastServiceDate  *time.Time      `json:"lastServiceDate"`
+	LastServiceTitle *string         `json:"lastServiceTitle"`
 }
+

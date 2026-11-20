@@ -4,10 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Disc, Search } from "lucide-react-native";
 import { Input, InputField, InputIcon } from "@/components/ui/input";
 import { VStack } from "@/components/ui/vstack";
+import { useRouter } from "expo-router";
 
 export default function History() {
+  const router = useRouter();
+
   return (
-    <SafeAreaView>
+    <SafeAreaView className="flex-1 bg-background">
       <View className="items-center bg-transparent justify-center mt-4 mb-6">
         <Text className="font-space-grotesk-semibold text-primary text-base">
           History
@@ -48,7 +51,10 @@ export default function History() {
             <Text className="font-space-grotesk-bold text-base text-primary">
               October 2025
             </Text>
-            <Pressable className="flex-row gap-x-3 bg-card rounded-[14px] p-3.5 items-center active:bg-card/80">
+            <Pressable
+              className="flex-row gap-x-3 bg-card rounded-[14px] p-3.5 items-center active:bg-card/80"
+              onPress={() => router.push("/(tabs)/history/log-detail")}
+            >
               <View className="size-9.5 rounded-xl flex items-center justify-center bg-accent-foreground">
                 <Disc size={18} color="#F5A525" />
               </View>

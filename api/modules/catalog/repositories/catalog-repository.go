@@ -158,8 +158,19 @@ func (repo *CatalogRepository) GetCategory(ctx context.Context, id int16) (*cata
 }
 
 func (repo *CatalogRepository) CreateCategory(ctx context.Context, req catalogcontracts.CategoryRequest) (*catalogcontracts.Category, error) {
+	color := req.Color
+	if color == "" {
+		color = "#F5A525"
+	}
+	icon := req.Icon
+	if icon == "" {
+		icon = "wrench"
+	}
+
 	category := &catalogcontracts.Category{
-		Name: req.Name,
+		Name:  req.Name,
+		Color: color,
+		Icon:  icon,
 	}
 
 	_, err := repo.db.NewInsert().Model(category).Returning("*").Exec(ctx)
@@ -177,6 +188,12 @@ func (repo *CatalogRepository) UpdateCategory(ctx context.Context, id int16, req
 	}
 
 	category.Name = req.Name
+	if req.Color != "" {
+		category.Color = req.Color
+	}
+	if req.Icon != "" {
+		category.Icon = req.Icon
+	}
 
 	_, err = repo.db.NewUpdate().Model(category).WherePK().Returning("*").Exec(ctx)
 	if err != nil {
@@ -187,6 +204,13 @@ func (repo *CatalogRepository) UpdateCategory(ctx context.Context, id int16, req
 }
 
 func (repo *CatalogRepository) DeleteCategory(ctx context.Context, id int16) error {
+	_, _ = repo.db.NewUpdate().
+		Table("maintenance_logs").
+		Set("category_id = NULL").
+		Where("category_id = ?", id).
+		Exec(ctx)
+
 	_, err := repo.db.NewDelete().Model((*catalogcontracts.Category)(nil)).Where("id = ?", id).Exec(ctx)
 	return err
 }
+

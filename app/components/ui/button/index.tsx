@@ -27,7 +27,7 @@ const buttonStyle = tva({
       default:
         "bg-accent data-[hover=true]:bg-accent/90 data-[active=true]:bg-accent/90",
       destructive:
-        "bg-destructive data-[hover=true]:bg-destructive/90 data-[active=true]:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        "bg-destructive/10 border border-destructive data-[hover=true]:bg-destructive-foreground/90 data-[active=true]:bg-destructive-foreground/90",
       outline:
         "border border-accent bg-accent-foreground rounded-full data-[hover=true]:bg-accent data-[active=true]:bg-accent",
       secondary:
@@ -49,7 +49,7 @@ const buttonTextStyle = tva({
   parentVariants: {
     variant: {
       default: "text-on-accent font-inter-semibold",
-      destructive: "text-white",
+      destructive: "text-destructive font-inter-semibold",
       outline:
         "text-accent font-inter-semibold text-xs data-[hover=true]:text-accent-foreground data-[active=true]:text-accent-foreground",
       secondary: "text-primary font-inter-semibold text-sm",

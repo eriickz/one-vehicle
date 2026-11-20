@@ -18,6 +18,8 @@ type Currency struct {
 type Category struct {
 	bun.BaseModel `bun:"table:categories"`
 	contracts.EntityTimestamps
-	ID   int16  `bun:",pk,autoincrement" json:"id"`
-	Name string `bun:",notnull,unique" json:"name"`
+	ID    int16  `bun:",pk,autoincrement" json:"id"`
+	Name  string `bun:",notnull,unique" json:"name"`
+	Color string `bun:",notnull,default:'#F5A525'" json:"color"`
+	Icon  string `bun:",notnull,default:'wrench'" json:"icon"`
 }

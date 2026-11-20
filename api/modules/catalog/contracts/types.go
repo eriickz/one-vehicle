@@ -8,5 +8,7 @@ type CurrencyRequest struct {
 }
 
 type CategoryRequest struct {
-	Name string `json:"name" validate:"required,min=2,max=50"`
+	Name  string `json:"name" validate:"required,min=2,max=50"`
+	Color string `json:"color"`
+	Icon  string `json:"icon"`
 }

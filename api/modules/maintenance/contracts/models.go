@@ -15,7 +15,7 @@ type MaintenanceLog struct {
 	contracts.EntityTimestamps
 	ID         string                     `bun:",pk,type:uuid" json:"id"`
 	VehicleID  string                     `bun:",notnull,type:uuid" json:"vehicleId"`
-	CategoryID int16                      `bun:",notnull" json:"categoryId"`
+	CategoryID *int16                     `bun:",nullzero" json:"categoryId"`
 	Date       time.Time                  `bun:",notnull" json:"date"`
 	Mileage    int                        `bun:",notnull" json:"mileage"`
 	Title      string                     `bun:",notnull" json:"title"`

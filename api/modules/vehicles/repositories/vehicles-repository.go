@@ -92,17 +92,43 @@ func (repo *VehiclesRepository) GetVehicleMetrics(ctx context.Context, vehicleID
 		return nil, err
 	}
 
+	var lastLog struct {
+		Title string    `bun:"title"`
+		Date  time.Time `bun:"date"`
+	}
+	hasLastLog := false
+	err = repo.db.NewSelect().
+		TableExpr("maintenance_logs AS ml").
+		Column("ml.title", "ml.date").
+		Where("ml.vehicle_id = ?", vehicleID).
+		Order("ml.date DESC", "ml.created_at DESC").
+		Limit(1).
+		Scan(ctx, &lastLog)
+	if err == nil {
+		hasLastLog = true
+	}
+
 	currentMileage := vehicle.InitialMileage
 	if stats.MaxMileage.Valid && int(stats.MaxMileage.Int32) > currentMileage {
 		currentMileage = int(stats.MaxMileage.Int32)
 	}
 
+	var lastServiceDate *time.Time
+	var lastServiceTitle *string
+	if hasLastLog {
+		lastServiceDate = &lastLog.Date
+		lastServiceTitle = &lastLog.Title
+	} else if stats.LastServiceDate != nil {
+		lastServiceDate = stats.LastServiceDate
+	}
+
 	return &vehiclescontracts.VehicleMetricsResponse{
-		VehicleID:       vehicleID,
-		CurrentMileage:  currentMileage,
-		TotalExpenses:   stats.TotalExpenses,
-		TotalLogsCount:  stats.TotalLogsCount,
-		LastServiceDate: stats.LastServiceDate,
+		VehicleID:        vehicleID,
+		CurrentMileage:   currentMileage,
+		TotalExpenses:    stats.TotalExpenses,
+		TotalLogsCount:   stats.TotalLogsCount,
+		LastServiceDate:  lastServiceDate,
+		LastServiceTitle: lastServiceTitle,
 	}, nil
 }
 
@@ -147,6 +173,12 @@ func (repo *VehiclesRepository) UpdateVehicle(ctx context.Context, id string, re
 }
 
 func (repo *VehiclesRepository) DeleteVehicle(ctx context.Context, id string) error {
+	_, _ = repo.db.NewDelete().
+		Table("maintenance_logs").
+		Where("vehicle_id = ?", id).
+		Exec(ctx)
+
 	_, err := repo.db.NewDelete().Model((*vehiclescontracts.Vehicle)(nil)).Where("id = ?", id).Exec(ctx)
 	return err
 }
+

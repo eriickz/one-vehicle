@@ -20,7 +20,6 @@ func main() {
 	}
 
 	dbClient := clients.LoadDBClient(envVars.DBURL)
-
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	e := echo.New()
@@ -31,8 +30,7 @@ func main() {
 	apiGroup := e.Group("/api")
 
 	apiGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{envVars.AppOrigin, "*"},
-		AllowCredentials: true,
+		AllowOrigins: []string{"*"},
 	}))
 
 	mcatalog.RegisterCatalogRoutes(apiGroup, dbClient, validate)

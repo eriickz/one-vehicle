@@ -7,7 +7,7 @@ import (
 
 type MaintenanceLogRequest struct {
 	VehicleID  string          `json:"vehicleId" validate:"required"`
-	CategoryID int16           `json:"categoryId" validate:"required"`
+	CategoryID *int16          `json:"categoryId"`
 	Date       string          `json:"date" validate:"required"`
 	Mileage    int             `json:"mileage" validate:"min=0"`
 	Title      string          `json:"title" validate:"required,min=2,max=200"`
