@@ -30,12 +30,12 @@ func LoadDBClient(url string) *bun.DB {
 	sqldb := stdlib.OpenDBFromPool(pool)
 	dbClient := bun.NewDB(sqldb, pgdialect.New())
 
-	dbClient.WithQueryHook(bundebug.NewQueryHook(
+	dbClient.AddQueryHook(bundebug.NewQueryHook(
 		bundebug.FromEnv("BUN_DEBUG"),
 	))
 
-	runMigrations(dbClient)
 	createDBTables(ctx, dbClient)
+	runMigrations(dbClient)
 
 	err = config.SeedLookupData(ctx, dbClient)
 	if err != nil {

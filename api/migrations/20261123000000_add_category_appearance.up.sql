@@ -1,0 +1,7 @@
+ALTER TABLE categories
+    ADD COLUMN IF NOT EXISTS color VARCHAR(7) NOT NULL DEFAULT '#F5A525';
+
+--bun:split
+
+ALTER TABLE categories
+    ADD COLUMN IF NOT EXISTS icon VARCHAR(50) NOT NULL DEFAULT 'wrench';

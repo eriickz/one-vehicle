@@ -1,15 +1,6 @@
 import { APIResponse, Currency } from "@/types";
-import { Vehicle } from "./types";
+import { Vehicle, VehicleInput } from "./types";
 import { apiClient } from "@/src/api-client";
-
-export interface VehicleInput {
-  make: string;
-  model: string;
-  year: number;
-  licensePlate: string;
-  initialMileage: number;
-  currencyId: number;
-}
 
 export async function getVehicleList(): Promise<APIResponse<Vehicle[]>> {
   return await apiClient.get("vehicles").json();
@@ -17,6 +8,16 @@ export async function getVehicleList(): Promise<APIResponse<Vehicle[]>> {
 
 export async function getVehicle(id: string): Promise<APIResponse<Vehicle>> {
   return await apiClient.get(`vehicles/${id}`).json();
+}
+
+export async function getCurrentVehicle(): Promise<APIResponse<Vehicle>> {
+  return await apiClient.get("vehicles/current").json();
+}
+
+export async function setCurrentVehicle(
+  id: string,
+): Promise<APIResponse<Vehicle>> {
+  return await apiClient.put(`vehicles/${id}/current`).json();
 }
 
 export async function getCurrencyList(): Promise<APIResponse<Currency[]>> {

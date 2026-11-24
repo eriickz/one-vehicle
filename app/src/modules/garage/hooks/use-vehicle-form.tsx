@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useToast } from "@/components/ui/toast";
-import { showToast } from "@/src/utils/showToast";
+import { showToast } from "@/src/utils/show-toast";
 import { VehicleFormValues, vehicleSchema } from "../schemas";
 import { createVehicle, getVehicle, updateVehicle } from "../services";
 import { Vehicle } from "../types";
-import { toFormValues } from "../utils/toFormValues";
-import { toVehicleInput } from "../utils/toVehicleInput";
+import { toFormValues } from "../utils/to-form-values";
+import { toVehicleInput } from "../utils/to-vehicle-input";
+import { useFetchVehicles } from "@/src/hooks/use-fetch-vehicles";
 
 const EMPTY_VALUES: VehicleFormValues = {
   make: "",
@@ -19,16 +20,19 @@ const EMPTY_VALUES: VehicleFormValues = {
 };
 
 export function useVehicleForm(
-  vehicleId?: string,
+  vehicleId: string,
   onSuccess?: (vehicle: Vehicle) => void,
 ) {
   const toast = useToast();
+  const isEditing = Boolean(vehicleId) && vehicleId !== "new";
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoadingVehicle, setIsLoadingVehicle] = useState(Boolean(vehicleId));
+  const [isLoadingVehicle, setIsLoadingVehicle] = useState(isEditing);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingValues, setPendingValues] = useState<VehicleFormValues | null>(
     null,
   );
+
+  const { setReload: setReloadVehicles } = useFetchVehicles();
 
   const {
     control,
@@ -40,10 +44,8 @@ export function useVehicleForm(
     defaultValues: EMPTY_VALUES,
   });
 
-  const isEditing = Boolean(vehicleId);
-
   useEffect(() => {
-    if (!vehicleId) {
+    if (vehicleId === "new") {
       return;
     }
 
@@ -62,22 +64,12 @@ export function useVehicleForm(
       .finally(() => {
         setIsLoadingVehicle(false);
       });
-  }, [vehicleId, reset, toast]);
+  }, [vehicleId, reset]);
 
-  const requestSubmit = handleSubmit(
-    (values) => {
-      setPendingValues(values);
-      setIsConfirmOpen(true);
-    },
-    () => {
-      showToast(
-        toast,
-        "error",
-        "Check the form",
-        "Some fields are missing or invalid.",
-      );
-    },
-  );
+  const requestSubmit = handleSubmit((values) => {
+    setPendingValues(values);
+    setIsConfirmOpen(true);
+  });
 
   async function confirmSubmit() {
     if (!pendingValues || isSaving) return;
@@ -87,10 +79,11 @@ export function useVehicleForm(
     try {
       const input = toVehicleInput(pendingValues);
 
-      const { data: vehicle } = vehicleId
+      const { data: vehicle } = isEditing
         ? await updateVehicle(vehicleId, input)
         : await createVehicle(input);
 
+      reset(isEditing ? toFormValues(vehicle) : EMPTY_VALUES);
       setIsConfirmOpen(false);
       setPendingValues(null);
 
@@ -111,6 +104,7 @@ export function useVehicleForm(
       );
     } finally {
       setIsSaving(false);
+      setReloadVehicles(true);
     }
   }
 

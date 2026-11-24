@@ -15,8 +15,8 @@ export default function TabsLayout() {
   const router = useRouter();
   const segments = useSegments();
 
-  const hideTab = (["new-log", "log-detail", "add-vehicle"] as const).some(
-    (route) => [...segments].includes(route),
+  const hideTab = (["new-log", "log-detail", "[id]"] as const).some((route) =>
+    [...segments].includes(route),
   );
 
   return (

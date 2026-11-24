@@ -3,6 +3,7 @@ package vehiclesrepositories
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/eriickz/one-vehicle/api/internal/utils"
@@ -67,6 +68,45 @@ func (repo *VehiclesRepository) GetVehicle(ctx context.Context, id string) (*veh
 	return vehicle, nil
 }
 
+func (repo *VehiclesRepository) GetCurrentVehicle(ctx context.Context) (*vehiclescontracts.Vehicle, error) {
+	vehicle := new(vehiclescontracts.Vehicle)
+
+	err := repo.db.NewSelect().
+		Model(vehicle).
+		Relation("Currency").
+		Where("vehicle.is_active = true").
+		Order("vehicle.created_at DESC").
+		Limit(1).
+		Scan(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return vehicle, nil
+}
+
+func (repo *VehiclesRepository) SetCurrentVehicle(ctx context.Context, id string) (*vehiclescontracts.Vehicle, error) {
+	_, err := repo.db.NewUpdate().
+		Model((*vehiclescontracts.Vehicle)(nil)).
+		Set("is_active = false").
+		Where("is_active = true").
+		Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = repo.db.NewUpdate().
+		Model((*vehiclescontracts.Vehicle)(nil)).
+		Set("is_active = true").
+		Where("id = ?", id).
+		Exec(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.GetVehicle(ctx, id)
+}
+
 func (repo *VehiclesRepository) GetVehicleMetrics(ctx context.Context, vehicleID string) (*vehiclescontracts.VehicleMetricsResponse, error) {
 	vehicle, err := repo.GetVehicle(ctx, vehicleID)
 	if err != nil {
@@ -96,16 +136,16 @@ func (repo *VehiclesRepository) GetVehicleMetrics(ctx context.Context, vehicleID
 		Title string    `bun:"title"`
 		Date  time.Time `bun:"date"`
 	}
-	hasLastLog := false
+
 	err = repo.db.NewSelect().
-		TableExpr("maintenance_logs AS ml").
-		Column("ml.title", "ml.date").
-		Where("ml.vehicle_id = ?", vehicleID).
-		Order("ml.date DESC", "ml.created_at DESC").
+		Table("maintenance_logs").
+		Column("title", "date").
+		Where("vehicle_id = ?", vehicleID).
+		Order("date DESC", "created_at DESC").
 		Limit(1).
 		Scan(ctx, &lastLog)
-	if err == nil {
-		hasLastLog = true
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
 	currentMileage := vehicle.InitialMileage
@@ -113,26 +153,20 @@ func (repo *VehiclesRepository) GetVehicleMetrics(ctx context.Context, vehicleID
 		currentMileage = int(stats.MaxMileage.Int32)
 	}
 
-	var lastServiceDate *time.Time
-	var lastServiceTitle *string
-	if hasLastLog {
-		lastServiceDate = &lastLog.Date
-		lastServiceTitle = &lastLog.Title
-	} else if stats.LastServiceDate != nil {
-		lastServiceDate = stats.LastServiceDate
-	}
-
 	return &vehiclescontracts.VehicleMetricsResponse{
-		VehicleID:        vehicleID,
-		CurrentMileage:   currentMileage,
-		TotalExpenses:    stats.TotalExpenses,
-		TotalLogsCount:   stats.TotalLogsCount,
-		LastServiceDate:  lastServiceDate,
-		LastServiceTitle: lastServiceTitle,
+		VehicleID:      vehicleID,
+		CurrentMileage: currentMileage,
+		TotalExpenses:  stats.TotalExpenses,
+		TotalLogsCount: stats.TotalLogsCount,
 	}, nil
 }
 
 func (repo *VehiclesRepository) CreateVehicle(ctx context.Context, req vehiclescontracts.VehicleRequest) (*vehiclescontracts.Vehicle, error) {
+	count, err := repo.db.NewSelect().Model((*vehiclescontracts.Vehicle)(nil)).Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	vehicle := &vehiclescontracts.Vehicle{
 		ID:             utils.GenerateUUID(),
 		CurrencyID:     req.CurrencyID,
@@ -141,14 +175,15 @@ func (repo *VehiclesRepository) CreateVehicle(ctx context.Context, req vehiclesc
 		Year:           req.Year,
 		LicensePlate:   req.LicensePlate,
 		InitialMileage: req.InitialMileage,
+		IsActive:       count == 0,
 	}
 
-	_, err := repo.db.NewInsert().Model(vehicle).Returning("*").Exec(ctx)
+	_, err = repo.db.NewInsert().Model(vehicle).Returning("*").Exec(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return repo.GetVehicle(ctx, vehicle.ID)
+	return vehicle, nil
 }
 
 func (repo *VehiclesRepository) UpdateVehicle(ctx context.Context, id string, req vehiclescontracts.VehicleRequest) (*vehiclescontracts.Vehicle, error) {
@@ -169,16 +204,38 @@ func (repo *VehiclesRepository) UpdateVehicle(ctx context.Context, id string, re
 		return nil, err
 	}
 
-	return repo.GetVehicle(ctx, vehicle.ID)
+	return vehicle, err
 }
 
 func (repo *VehiclesRepository) DeleteVehicle(ctx context.Context, id string) error {
-	_, _ = repo.db.NewDelete().
+	vehicle, err := repo.GetVehicle(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.db.NewDelete().
 		Table("maintenance_logs").
 		Where("vehicle_id = ?", id).
 		Exec(ctx)
+	if err != nil {
+		return err
+	}
 
-	_, err := repo.db.NewDelete().Model((*vehiclescontracts.Vehicle)(nil)).Where("id = ?", id).Exec(ctx)
+	_, err = repo.db.NewDelete().Model((*vehiclescontracts.Vehicle)(nil)).Where("id = ?", id).Exec(ctx)
+	if err != nil {
+		return err
+	}
+
+	if vehicle.IsActive {
+		_, err = repo.db.NewUpdate().
+			Model((*vehiclescontracts.Vehicle)(nil)).
+			Set("is_active = true").
+			Where("id = (SELECT id FROM vehicles ORDER BY created_at DESC LIMIT 1)").
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+	}
+
 	return err
 }
-

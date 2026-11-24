@@ -1,5 +1,5 @@
 import { VehicleFormValues } from "../schemas";
-import { VehicleInput } from "../services";
+import { VehicleInput } from "../types";
 
 export function toVehicleInput(values: VehicleFormValues): VehicleInput {
   return {

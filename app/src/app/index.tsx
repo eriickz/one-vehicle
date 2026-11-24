@@ -5,7 +5,7 @@ import { Text, View } from "react-native";
 import { CarFront, CircleDollarSign, Tags } from "lucide-react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Redirect, useRouter } from "expo-router";
-import { useFetchVehicles } from "@/src/modules/garage/hooks/useFetchVehicles";
+import { useFetchVehicles } from "@/src/hooks/use-fetch-vehicles";
 
 export default function Index() {
   const router = useRouter();
@@ -88,7 +88,7 @@ export default function Index() {
         </HStack>
         <Button
           className="mt-2.5"
-          onPress={() => router.push("/(tabs)/garage/add-vehicle")}
+          onPress={() => router.push("/(tabs)/garage/new")}
         >
           <ButtonText className="capitalize">Add your first vehicle</ButtonText>
         </Button>

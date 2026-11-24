@@ -10,12 +10,7 @@ const colorValues: string[] = CATEGORY_COLORS.map((color) => color.value);
 const iconValues: string[] = CATEGORY_ICONS.map((icon) => icon.name);
 
 export const categorySchema = yup.object({
-  name: yup
-    .string()
-    .trim()
-    .required("Name is required")
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must be 50 characters or less"),
+  name: yup.string().trim().required("Name is required"),
   color: yup
     .string()
     .required("Color is required")

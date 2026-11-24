@@ -1,31 +1,45 @@
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/toast";
+import { showToast } from "@/src/utils/show-toast";
 import { Category } from "@/types";
-import { getCategoryList } from "../services";
+import { getCategoryList } from "@/src/modules/categories/services";
 
 export function useFetchCategories() {
+  const toast = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [reload, setReload] = useState(true);
 
   useEffect(() => {
+    if (!reload) {
+      return;
+    }
+
     let cancelled = false;
 
     async function load() {
+      setLoading(true);
+
       try {
         const res = await getCategoryList();
 
         if (!cancelled) {
           setCategories(res.data ?? []);
-          setError(null);
         }
       } catch (e) {
         if (!cancelled) {
           setCategories([]);
-          setError(e instanceof Error ? e.message : "Could not load categories");
+          showToast(
+            toast,
+            "error",
+            "Could not load categories",
+            e instanceof Error ? e.message : "Please try again.",
+          );
         }
       } finally {
         if (!cancelled) {
           setLoading(false);
+          setReload(false);
         }
       }
     }
@@ -35,22 +49,7 @@ export function useFetchCategories() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [reload]);
 
-  async function refetch() {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const res = await getCategoryList();
-      setCategories(res.data ?? []);
-    } catch (e) {
-      setCategories([]);
-      setError(e instanceof Error ? e.message : "Could not load categories");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return { categories, loading, error, refetch };
+  return { categories, loading, setReload };
 }

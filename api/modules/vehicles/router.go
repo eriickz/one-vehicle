@@ -16,8 +16,10 @@ func RegisterVehiclesRoutes(apiGroup *echo.Group, dbClient *bun.DB, validate *va
 
 	vehiclesGroup := apiGroup.Group("/vehicles")
 	vehiclesGroup.GET("", vehiclesController.ListVehicles)
+	vehiclesGroup.GET("/current", vehiclesController.GetCurrentVehicle)
 	vehiclesGroup.GET("/:id", vehiclesController.GetVehicle)
 	vehiclesGroup.GET("/:id/metrics", vehiclesController.GetVehicleMetrics)
+	vehiclesGroup.PUT("/:id/current", vehiclesController.SetCurrentVehicle)
 	vehiclesGroup.POST("", vehiclesController.CreateVehicle)
 	vehiclesGroup.PUT("/:id", vehiclesController.UpdateVehicle)
 	vehiclesGroup.DELETE("/:id", vehiclesController.DeleteVehicle)

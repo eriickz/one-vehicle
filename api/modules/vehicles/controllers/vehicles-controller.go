@@ -54,6 +54,40 @@ func (vc *VehiclesController) GetVehicle(c *echo.Context) error {
 	})
 }
 
+func (vc *VehiclesController) GetCurrentVehicle(c *echo.Context) error {
+	vehicle, err := vc.service.GetCurrentVehicle(c)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, contracts.APIResponse[any]{
+			Message: "No vehicle is currently selected",
+		})
+	}
+
+	return c.JSON(http.StatusOK, contracts.APIResponse[vehiclescontracts.Vehicle]{
+		Data: *vehicle,
+	})
+}
+
+func (vc *VehiclesController) SetCurrentVehicle(c *echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(http.StatusBadRequest, contracts.APIResponse[any]{
+			Message: "Vehicle ID is required",
+		})
+	}
+
+	vehicle, err := vc.service.SetCurrentVehicle(c, id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, contracts.APIResponse[any]{
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, contracts.APIResponse[vehiclescontracts.Vehicle]{
+		Message: "Current vehicle updated successfully.",
+		Data:    *vehicle,
+	})
+}
+
 func (vc *VehiclesController) GetVehicleMetrics(c *echo.Context) error {
 	id := c.Param("id")
 	if id == "" {

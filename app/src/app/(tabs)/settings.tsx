@@ -2,50 +2,45 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
-import {
-  Calendar,
-  Check,
-  ChevronRight,
-  Disc,
-  Fuel,
-  Gauge,
-  Plus,
-  Shield,
-  Tag,
-  Wrench,
-  X,
-} from "lucide-react-native";
+import { ChevronRight, Plus, Tags } from "lucide-react-native";
+import { BlankState } from "@/components/ui/blank-state";
 import { Pressable, Text, View } from "react-native";
-import { useRef } from "react";
-import {
-  BottomSheet,
-  BottomSheetBackdrop,
-  BottomSheetContent,
-  BottomSheetDragIndicator,
-  BottomSheetPortal,
-  BottomSheetRef,
-  BottomSheetScrollView,
-} from "@/components/ui/bottomsheet";
-import {
-  FormControl,
-  FormControlLabel,
-  FormControlLabelText,
-} from "@/components/ui/form-control";
-import { Input, InputField } from "@/components/ui/input";
+import { useRef, useState } from "react";
+import { BottomSheetRef } from "@/components/ui/bottomsheet";
+import { CategoryFormBottomSheet } from "@/src/modules/categories/components/category-form-bottomsheet";
+import { useFetchCategories } from "@/src/hooks/use-fetch-categories";
 
 export default function Settings() {
   const categoryFormRef = useRef<BottomSheetRef>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
+
+  const { categories, setReload } = useFetchCategories();
+
+  const handleOpenCreate = () => {
+    setSelectedCategoryId(null);
+    categoryFormRef.current?.open();
+  };
+
+  const handleOpenEdit = (id: number) => {
+    setSelectedCategoryId(id);
+    categoryFormRef.current?.open();
+  };
 
   return (
     <SafeAreaView>
+      <CategoryFormBottomSheet
+        ref={categoryFormRef}
+        categoryId={selectedCategoryId}
+        onClose={() => setSelectedCategoryId(null)}
+        onSaved={() => setReload(true)}
+      />
       <HStack className="items-center bg-transparent justify-between mt-4 mb-6 px-5">
         <Text className="font-space-grotesk-semibold text-primary text-base">
           Categories
         </Text>
-        <Button
-          variant="outline"
-          onPress={() => categoryFormRef.current?.open()}
-        >
+        <Button variant="outline" onPress={handleOpenCreate}>
           <ButtonIcon
             as={() => <Plus size={14} color="#F5A525" strokeWidth={3} />}
           />
@@ -53,125 +48,49 @@ export default function Settings() {
         </Button>
       </HStack>
       <VStack className="gap-y-3.5 px-5">
-        <Text className="font-body text-xs text-secondary">
-          Classify every log. Create categories anytime — even mid-log.
-        </Text>
-        <Pressable className="flex-row gap-x-3 items-center rounded-2xl bg-card p-3.5 border border-border active:bg-card/80">
-          <View className="size-3 rounded-full bg-accent" />
-          <VStack className="gap-y-0.5">
-            <Text className="font-inter-semibold text-sm text-primary">
-              Maintenance
+        {categories.length > 0 ? (
+          <>
+            <Text className="font-body text-xs text-secondary">
+              Classify every log. Create categories anytime — even mid-log.
             </Text>
-            <Text className="text-muted font-body text-xs">12 logs</Text>
-          </VStack>
-          <View className="ml-auto">
-            <ChevronRight size={22} color="#5E6B7A" />
-          </View>
-        </Pressable>
-        <Text className="font-body text-xs text-muted text-center">
-          Deleting a category keeps its logs as “Uncategorized”.
-        </Text>
-      </VStack>
-      <BottomSheet ref={categoryFormRef}>
-        <BottomSheetPortal
-          snapPoints={[480, 600]}
-          backdropComponent={BottomSheetBackdrop}
-          handleComponent={BottomSheetDragIndicator}
-          enableHandlePanningGesture={false}
-          enablePanDownToClose={false}
-          enableOverDrag={false}
-        >
-          <BottomSheetContent>
-            <HStack className="justify-between items-center">
-              <Text className="text-primary font-space-grotesk-semibold text-base">
-                New Category
-              </Text>
-              <Button
-                variant="ghost"
-                onPress={() => categoryFormRef.current?.close()}
+            {categories.map((category) => (
+              <Pressable
+                key={category.id}
+                onPress={() => handleOpenEdit(category.id)}
+                className="flex-row gap-x-3 items-center rounded-2xl bg-card p-3.5 border border-border active:bg-card/80"
               >
-                <ButtonIcon
-                  as={() => <X color="#96A2B3" size={20} strokeWidth={3} />}
+                <View
+                  className="size-3 rounded-full"
+                  style={{ backgroundColor: category.color }}
                 />
-              </Button>
-            </HStack>
-            <VStack className="mt-2 gap-y-3.5">
-              <FormControl>
-                <FormControlLabel>
-                  <FormControlLabelText>Name</FormControlLabelText>
-                </FormControlLabel>
-                <Input>
-                  <InputField placeholder="Tires" />
-                </Input>
-              </FormControl>
-              <FormControl>
-                <FormControlLabel>
-                  <FormControlLabelText>Color</FormControlLabelText>
-                </FormControlLabel>
-                <HStack className="gap-x-2.5 mt-1">
-                  <Button className="rounded-full size-7.5 p-0">
-                    <ButtonIcon as={Check} />
-                  </Button>
-                  <Button className="rounded-full size-7.5 p-0 bg-category-1 data-[active=true]:bg-category-1/80" />
-                  <Button className="rounded-full size-7.5 p-0 bg-category-2 data-[active=true]:bg-category-2/80" />
-                  <Button className="rounded-full size-7.5 p-0 bg-category-3 data-[active=true]:bg-category-3/80" />
-                  <Button className="rounded-full size-7.5 p-0 bg-category-4 data-[active=true]:bg-category-4/80" />
-                </HStack>
-              </FormControl>
-              <FormControl>
-                <FormControlLabel>
-                  <FormControlLabelText>Icon</FormControlLabelText>
-                </FormControlLabel>
-                <BottomSheetScrollView
-                  horizontal
-                  alwaysBounceHorizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerClassName="gap-x-2 mt-2"
-                >
-                  <Button className="rounded-xl border border-accent bg-accent-foreground p-3">
-                    <ButtonIcon
-                      as={() => <Wrench color="#F5A525" size={18} />}
-                    />
-                  </Button>
-                  <Button className="rounded-xl border border-border bg-card p-3">
-                    <ButtonIcon as={() => <Disc color="#96A2B3" size={18} />} />
-                  </Button>
-                  <Button className="rounded-xl border border-border bg-card p-3">
-                    <ButtonIcon as={() => <Fuel color="#96A2B3" size={18} />} />
-                  </Button>
-                  <Button className="rounded-xl border border-border bg-card p-3">
-                    <ButtonIcon
-                      as={() => <Shield color="#96A2B3" size={18} />}
-                    />
-                  </Button>
-                  <Button className="rounded-xl border border-border bg-card p-3">
-                    <ButtonIcon
-                      as={() => <Calendar color="#96A2B3" size={18} />}
-                    />
-                  </Button>
-                  <Button className="rounded-xl border border-border bg-card p-3">
-                    <ButtonIcon as={() => <Tag color="#96A2B3" size={18} />} />
-                  </Button>
-                  <Button className="rounded-xl border border-border bg-card p-3">
-                    <ButtonIcon
-                      as={() => <Gauge color="#96A2B3" size={18} />}
-                    />
-                  </Button>
-                </BottomSheetScrollView>
-              </FormControl>
-              <Button className="mt-2">
-                <ButtonText>Create & Apply</ButtonText>
-              </Button>
-              <Button
-                variant="secondary"
-                onPress={() => categoryFormRef.current?.close()}
-              >
-                <ButtonText>Cancel</ButtonText>
-              </Button>
-            </VStack>
-          </BottomSheetContent>
-        </BottomSheetPortal>
-      </BottomSheet>
+                <VStack className="gap-y-0.5">
+                  <Text className="font-inter-semibold text-sm text-primary">
+                    {category.name}
+                  </Text>
+                </VStack>
+                <View className="ml-auto">
+                  <ChevronRight size={22} color="#5E6B7A" />
+                </View>
+              </Pressable>
+            ))}
+            <Text className="font-body text-xs text-muted text-center">
+              Deleting a category keeps its logs as “Uncategorized”.
+            </Text>
+          </>
+        ) : (
+          <>
+            <BlankState
+              icon={Tags}
+              title="No categories yet"
+              description="Categories classify every log — maintenance, repairs, fuel and more. Create your first one, or make one on the fly while logging."
+            />
+            <Text className="font-body text-xs text-muted text-center">
+              You can also create categories from inside the New Log form — your
+              draft is always kept.
+            </Text>
+          </>
+        )}
+      </VStack>
     </SafeAreaView>
   );
 }

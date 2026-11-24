@@ -16,5 +16,6 @@ type Vehicle struct {
 	Year           int                        `bun:",notnull" json:"year"`
 	LicensePlate   string                     `bun:",notnull" json:"licensePlate"`
 	InitialMileage int                        `bun:",notnull,default:0" json:"initialMileage"`
+	IsActive       bool                       `bun:",notnull,default:false" json:"isActive"`
 	Currency       *catalogcontracts.Currency `bun:"rel:has-one,join:currency_id=id" json:"currency"`
 }

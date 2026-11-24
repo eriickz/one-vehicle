@@ -1,5 +1,5 @@
 import { CategoryFormValues } from "../schemas";
-import { CategoryInput } from "../services";
+import { CategoryInput } from "../types";
 
 export function toCategoryInput(values: CategoryFormValues): CategoryInput {
   return {

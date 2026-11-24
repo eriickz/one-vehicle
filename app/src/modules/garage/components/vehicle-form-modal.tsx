@@ -9,14 +9,7 @@ import {
 import { VStack } from "@/components/ui/vstack";
 import { CarFront, Pencil } from "lucide-react-native";
 import { Text, View } from "react-native";
-
-type VehicleFormModalProps = {
-  isOpen: boolean;
-  isEditing: boolean;
-  isSaving: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-};
+import { VehicleFormModalProps } from "../types";
 
 export function VehicleFormModal({
   isOpen,

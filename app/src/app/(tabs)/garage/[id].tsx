@@ -22,18 +22,20 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { VStack } from "@/components/ui/vstack";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronDown, ChevronLeft, Gauge } from "lucide-react-native";
 import { Text } from "react-native";
 import { Controller } from "react-hook-form";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { VehicleFormModal } from "@/src/modules/garage/components/vehicle-form-modal";
-import { useFetchCurrencies } from "@/src/modules/garage/hooks/useFetchCurrencies";
-import { useVehicleForm } from "@/src/modules/garage/hooks/useVehicleForm";
+import { useFetchCurrencies } from "@/src/hooks/use-fetch-currencies";
+import { useVehicleForm } from "@/src/modules/garage/hooks/use-vehicle-form";
 
-export default function NewVehicle() {
+export default function VehicleForm() {
   const router = useRouter();
   const { currencies } = useFetchCurrencies();
+  const { id } = useLocalSearchParams();
+  const vehicleId = typeof id === "string" ? id : "new";
 
   const {
     control,
@@ -44,7 +46,7 @@ export default function NewVehicle() {
     isSaving,
     isConfirmOpen,
     isEditing,
-  } = useVehicleForm(undefined, () => router.replace("/"));
+  } = useVehicleForm(vehicleId, () => router.replace("/garage"));
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -56,7 +58,7 @@ export default function NewVehicle() {
           <ButtonIcon as={() => <ChevronLeft size={20} color="#EDF2F7" />} />
         </Button>
         <Text className="font-space-grotesk-semibold text-primary text-base">
-          Add Vehicle
+          {isEditing ? "Edit Vehicle" : "Add Vehicle"}
         </Text>
       </HStack>
 
@@ -251,9 +253,7 @@ export default function NewVehicle() {
           onPress={() => requestSubmit()}
           isDisabled={isSaving}
         >
-          <ButtonText>
-            {isSaving ? "Saving..." : "Save Vehicle"}
-          </ButtonText>
+          <ButtonText>{isSaving ? "Saving..." : "Save Vehicle"}</ButtonText>
         </Button>
       </VStack>
 

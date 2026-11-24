@@ -9,7 +9,7 @@ export default function GarageLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="add-vehicle" />
+      <Stack.Screen name="[id]" />
     </Stack>
   );
 }

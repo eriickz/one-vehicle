@@ -35,6 +35,20 @@ func (s *VehiclesService) GetVehicle(c *echo.Context, id string) (*vehiclescontr
 	return s.repo.GetVehicle(ctx, id)
 }
 
+func (s *VehiclesService) GetCurrentVehicle(c *echo.Context) (*vehiclescontracts.Vehicle, error) {
+	ctx, cancel := context.WithTimeout(c.Request().Context(), time.Second*5)
+	defer cancel()
+
+	return s.repo.GetCurrentVehicle(ctx)
+}
+
+func (s *VehiclesService) SetCurrentVehicle(c *echo.Context, id string) (*vehiclescontracts.Vehicle, error) {
+	ctx, cancel := context.WithTimeout(c.Request().Context(), time.Second*5)
+	defer cancel()
+
+	return s.repo.SetCurrentVehicle(ctx, id)
+}
+
 func (s *VehiclesService) GetVehicleMetrics(c *echo.Context, id string) (*vehiclescontracts.VehicleMetricsResponse, error) {
 	ctx, cancel := context.WithTimeout(c.Request().Context(), time.Second*5)
 	defer cancel()
